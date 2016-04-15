@@ -327,3 +327,11 @@ ATTRIBUTE is a symbol as defined in `neato-graph-bar/cpu-field-names'."
 	  (neato-graph-bar/draw-cpu-graph-helper cpu)
 	  (insert "\n"))
 	(backward-delete-char 1)))))
+
+(defun neato-graph-bar/draw-all-graphs ()
+  (neato-graph-bar/draw-cpu-graph)
+  (insert "\n")
+  (neato-graph-bar/draw-memory-graph)
+  (insert "\n")
+  (neato-graph-bar/draw-swap-graph)
+  (insert "\n"))
