@@ -26,6 +26,18 @@ Currently expecting Linux meminfo format."
   :type '(file :must-match t)
   :group 'neato-graph-bar)
 
+(defcustom neato-graph-bar/cpu-stat-file
+  "/proc/stat"
+  "File to grab the CPU usage statistics from.
+
+Currently expecting Linux /proc/stat format"
+  :type '(file :must-match t)
+  :group 'neato-graph-bar)
+
+(defcustom neato-graph-bar/unified-cpu-graph
+  nil
+  "When nil, draw separate graphs for each CPU.
+When non-nil, draw a single unified CPU graph.")
 
 (defface neato-graph-bar/memory-used
   '((t
@@ -48,6 +60,34 @@ Currently expecting Linux meminfo format."
   "Face for the portion of the memory graph repsenting caches"
   :group 'neato-graph-bar)
 
+(defface neato-graph-bar/cpu-user
+  '((t
+     :foreground "green"
+     :inherit default))
+  "Face for the portion of the CPU graph representing user programs"
+  :group 'neato-graph-bar)
+
+(defface neato-graph-bar/cpu-system
+  '((t
+     :foreground "red"
+     :inherit default))
+  "Face for the portion of the CPU graph representing the kernel"
+  :group 'neato-graph-bar)
+
+(defface neato-graph-bar/cpu-interrupt
+  '((t
+     :foreground "gray"
+     :inherit default))
+  "Face for the portion of the CPU graph representing interrupts"
+  :group 'neato-graph-bar)
+
+(defface neato-graph-bar/cpu-vm
+  '((t
+     :foreground "purple"
+     :inherit default))
+  "Face for the portion of the CPU graph representing virtual machines"
+  :group 'neato-graph-bar)
+
 (defvar-local neato-graph-bar/memory-fields-to-keep
   '("MemTotal"
     "MemFree"
@@ -60,6 +100,23 @@ Currently expecting Linux meminfo format."
   "Fields to keep when retrieving memory information, to keep
 memory use low and not have a bunch of unused info in the
 alist.")
+
+(defvar-local neato-graph-bar/cpu-field-names
+  '(user
+    nice
+    system
+    idle
+    iowait
+    irq
+    softirq
+    steal
+    guest
+    guest-nice)
+  "Field names for CPU statistics")
+
+(defvar-local neato-graph-bar/cpu-stats-previous
+  nil
+  "Previous statistics of CPU usage information")
 
 (defun neato-graph-bar/draw-graph (label portions &optional end-text)
   "Draw a bar graph.
@@ -183,3 +240,81 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 			 swap-used
 			 swap-total)))
     (neato-graph-bar/draw-graph "Swap" swap-graph-alist swap-end-text)))
+
+(defun neato-graph-bar/get-cpu-stats ()
+  "Get the difference in the system CPU statistics since last update.
+
+The old information snapshot is moved to `neato-graph-bar/cpu-stats-previous',
+and the new is placed in `neato-graph-bar/cpu-stats-current'.
+
+This is obtained from `neato-graph-bar/cpu-stat-file', and made
+into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
+  (let* ((cpu-stat-list-strings
+	  (mapcar (lambda (x) (split-string x " " t))
+		  (with-temp-buffer
+		    (insert-file-contents neato-graph-bar/cpu-stat-file)
+		    (remove-if-not
+		     (lambda (x) (string= (substring x 0 3) "cpu"))
+		     (split-string (buffer-string) "\n" t)))))
+	(cpu-stat-list
+	 (mapcar (lambda (x)
+		   (cons (car x) (map 'list (lambda (y z)
+					      (cons y (string-to-number z)))
+				      neato-graph-bar/cpu-field-names
+				      (cdr x))))
+		 cpu-stat-list-strings))
+	(cpu-diff nil))
+    ;; Account for empty first run
+    (if	(null neato-graph-bar/cpu-stats-previous)
+	(setq neato-graph-bar/cpu-stats-previous cpu-stat-list))
+    (setq cpu-diff
+	  (map 'list (lambda (n o)
+		       (cons (car n)
+			     (map 'list (lambda (x y)
+					  (cons (car x) (- (cdr x) (cdr y))))
+				  (cdr n) (cdr o))))
+	       cpu-stat-list neato-graph-bar/cpu-stats-previous))
+    (setq neato-graph-bar/cpu-stats-previous cpu-stat-list)
+    cpu-diff))
+
+(defun neato-graph-bar/get-cpu-stat-total (cpu)
+  "Get the time total for CPU"
+  (reduce #'+ (mapcar #'cdr (cdr cpu))))
+
+(defun neato-graph-bar/get-cpu-attribute (cpu attribute)
+  "Get ATTRIBUTE from CPU.
+
+CPU is a string identifier, as found in the originating statistics file.
+ATTRIBUTE is a symbol as defined in `neato-graph-bar/cpu-field-names'."
+  (cdr (assoc attribute (cdr cpu))))
+
+(defun neato-graph-bar/draw-cpu-graph-helper (cpu)
+  "Helper to draw the CPU graph(s). Does the actual work."
+  (let* ((cpu-name (upcase (car cpu)))
+	 (cpu-total (neato-graph-bar/get-cpu-stat-total cpu))
+	 (cpu-user (neato-graph-bar/get-cpu-attribute cpu 'user))
+	 (cpu-system (neato-graph-bar/get-cpu-attribute cpu 'system))
+	 (cpu-irq (+
+		   (neato-graph-bar/get-cpu-attribute cpu 'irq)
+		   (neato-graph-bar/get-cpu-attribute cpu 'softirq)))
+	 (cpu-vm (+
+		  (neato-graph-bar/get-cpu-attribute cpu 'steal)
+		  (neato-graph-bar/get-cpu-attribute cpu 'guest)
+		  (neato-graph-bar/get-cpu-attribute cpu 'guest-nice)))
+	 (cpu-graph-alist
+	  `(('neato-graph-bar/cpu-user . ,(/ (float cpu-user) cpu-total))
+	    ('neato-graph-bar/cpu-system . ,(/ (float cpu-system) cpu-total))
+	    ('neato-graph-bar/cpu-irq . ,(/ (float cpu-irq) cpu-total))
+	    ('neato-graph-bar/cpu-vm . ,(/ (float cpu-vm) cpu-total)))))
+    (neato-graph-bar/draw-graph cpu-name cpu-graph-alist)))
+
+(defun neato-graph-bar/draw-cpu-graph ()
+  "Draw the CPU graph."
+  (let ((cpu-info (neato-graph-bar/get-cpu-stats)))
+    (if neato-graph-bar/unified-cpu-graph
+	(neato-graph-bar/draw-cpu-graph-helper (car cpu-info))
+      (progn
+	(dolist (cpu (cdr cpu-info))
+	  (neato-graph-bar/draw-cpu-graph-helper cpu)
+	  (insert "\n"))
+	(backward-delete-char 1)))))
