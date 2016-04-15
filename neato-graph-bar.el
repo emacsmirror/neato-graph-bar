@@ -39,6 +39,20 @@ Currently expecting Linux meminfo format."
 memory use low and not have a bunch of unused info in the
 alist.")
 
+(defface neato-graph-bar/memory-used
+  '((t
+     :foreground "green"
+     :inherit default))
+  "Face for the portion of the memory graph representing userspace memory"
+  :group 'neato-graph-bar)
+
+(defface neato-graph-bar/memory-cache-buffer
+  '((t
+     :foreground "yellow"
+     :inherit default))
+  "Face for the portion of the memory graph repsenting caches and buffers"
+  :group 'neato-graph-bar)
+
 (defun neato-graph-bar/get-memory-info ()
   "Retrieve the system memory information.
 
@@ -77,14 +91,17 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 	 ;; form, so I do here as well.
 	 (memory-used
 	  (- memory-total memory-free memory-buffers-cache))
-	 (win-width (- (window-body-width) 2))
+	 ;; 2 for []s, 5 for " Mem "
+	 (win-width (- (window-body-width) 2 5))
 	 (graph-fill-used
 	  (round (* (/ (float memory-used) memory-total) win-width)))
 	 (graph-fill-buffers-cache
 	  (round (* (/ (float memory-buffers-cache) memory-total) win-width))))
-    (insert "[")
-    (insert (make-string graph-fill-used ?|))
-    (insert (make-string graph-fill-buffers-cache ?|))
+    (insert " Mem [")
+    (insert (propertize (make-string graph-fill-used ?|)
+			'font-lock-face 'neato-graph-bar/memory-used))
+    (insert (propertize (make-string graph-fill-buffers-cache ?|)
+			'font-lock-face 'neato-graph-bar/memory-cache-buffer))
     (insert (make-string (- win-width
 			    graph-fill-used
 			    graph-fill-buffers-cache) ?\s))
