@@ -39,6 +39,12 @@ Currently expecting Linux /proc/stat format"
   "When nil, draw separate graphs for each CPU.
 When non-nil, draw a single unified CPU graph.")
 
+(defcustom neato-graph-bar/label-padding
+  4
+  "Number of character to pad graph labels to"
+  :type 'wholenum
+  :group 'neato-graph-bar)
+
 (defface neato-graph-bar/memory-used
   '((t
      :foreground "green"
@@ -135,10 +141,13 @@ for PORTIONS. END-TEXT is placed within the graph at the
 end. Unspecified, it defaults to a percentage, but can be any
 arbitrary string (good for doing things such as providing a
 \"30MB/100MB\" type counter for storage graphs)"
-  ;; 3 -> Space after label + '[' + ']'
-  (let ((bar-width (- (window-body-width) 3 (length label)))
-	(filled-percent 0.0))
-    (insert label " [")
+  (let* ((padded-label (concat (make-string (- neato-graph-bar/label-padding
+                                               (length label)) ?\s)
+                               label))
+         ;; 3 -> Space after label + '[' + ']'
+         (bar-width (- (window-body-width) 3 (length padded-label)))
+	 (filled-percent 0.0))
+    (insert padded-label " [")
     (dolist (pair portions)
       (let ((face (car pair))
 	    (percent (cdr pair)))
@@ -146,7 +155,7 @@ arbitrary string (good for doing things such as providing a
 		 (make-string (round (* percent bar-width)) ?|)
 		'font-lock-face face))
 	(setq filled-percent (+ percent filled-percent))))
-    (insert (make-string (- (+ bar-width (length label) 2)
+    (insert (make-string (- (+ bar-width (length padded-label) 2)
 			    (current-column))
 	    ?\s))
     (insert "]")
@@ -220,7 +229,7 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 	 (memory-end-text (neato-graph-bar/create-storage-status-text
 				  memory-used
 				  memory-total)))
-    (neato-graph-bar/draw-graph " Mem" memory-graph-alist memory-end-text)))
+    (neato-graph-bar/draw-graph "Mem" memory-graph-alist memory-end-text)))
 
 (defun neato-graph-bar/draw-swap-graph ()
   "Draw swap graph."
