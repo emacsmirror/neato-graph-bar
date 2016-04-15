@@ -55,3 +55,38 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 	    mem-info-list)
     (remove-if-not (lambda (x) (member x neato-graph-bar/memory-fields-to-keep))
 		   mem-info-list :key #'car)))
+
+(defun neato-graph-bar/get-memory-attribute (alist attribute)
+  "Get the ATTRIBUTE from the memory info ALIST."
+  (cdr (find attribute alist :key #'car :test #'string=)))
+
+(defun neato-graph-bar/draw-memory-graph ()
+  (let* ((memory-info (neato-graph-bar/get-memory-info))
+	 (memory-total
+	  (neato-graph-bar/get-memory-attribute memory-info "MemTotal"))
+	 (memory-free
+	  (neato-graph-bar/get-memory-attribute memory-info "MemFree"))
+	 (memory-buffers-cache
+	  (+ (neato-graph-bar/get-memory-attribute memory-info "Buffers")
+	     (neato-graph-bar/get-memory-attribute memory-info "Cached")))
+	 ;; Side note - it appears that there is a difference of 20MB (when I
+	 ;; tested) between `(- memory-total memory-free memory-buffers-cache)`
+	 ;; and the result of `(- memory-total memory-available)`... no idea
+	 ;; *why*. This 20MB is likely kernel memory, I bet. Anyways, my
+	 ;; reference, the file 'proc/sysinfo.c' from procps-ng uses the first
+	 ;; form, so I do here as well.
+	 (memory-used
+	  (- memory-total memory-free memory-buffers-cache))
+	 (win-width (- (window-body-width) 2))
+	 (graph-fill-used
+	  (round (* (/ (float memory-used) memory-total) win-width)))
+	 (graph-fill-buffers-cache
+	  (round (* (/ (float memory-buffers-cache) memory-total) win-width))))
+    (insert "[")
+    (insert (make-string graph-fill-used ?|))
+    (insert (make-string graph-fill-buffers-cache ?|))
+    (insert (make-string (- win-width
+			    graph-fill-used
+			    graph-fill-buffers-cache) ?\s))
+    (insert "]\n")
+    ))
