@@ -134,7 +134,7 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
   (cdr (find attribute alist :key #'car :test #'string=)))
 
 (defun neato-graph-bar/draw-memory-graph ()
-  "Draw memory graph"
+  "Draw memory graph."
   (let* ((memory-info (neato-graph-bar/get-memory-info))
 	 (memory-total
 	  (neato-graph-bar/get-memory-attribute memory-info "MemTotal"))
@@ -165,6 +165,7 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
     (neato-graph-bar/draw-graph " Mem" memory-graph-alist memory-end-text)))
 
 (defun neato-graph-bar/draw-swap-graph ()
+  "Draw swap graph."
   (let* ((memory-info (neato-graph-bar/get-memory-info))
 	 (swap-total
 	  (neato-graph-bar/get-memory-attribute memory-info "SwapTotal"))
