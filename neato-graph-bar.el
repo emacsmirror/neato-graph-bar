@@ -60,27 +60,6 @@ alist.")
   "Face for the portion of the memory graph repsenting caches"
   :group 'neato-graph-bar)
 
-(defun neato-graph-bar/get-memory-info ()
-  "Retrieve the system memory information.
-
-This is obtained from `neato-graph-bar/memory-info-file', and
-filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
-  (let ((mem-info-list
-	 (mapcar (lambda (x) (split-string x ":" t))
-		 (with-temp-buffer
-		   (insert-file-contents neato-graph-bar/memory-info-file)
-		   (split-string (buffer-string) "\n" t)))))
-    (mapcar (lambda (x)
-	      (rplacd x
-		      (string-to-number (car (split-string (cadr x))))))
-	    mem-info-list)
-    (remove-if-not (lambda (x) (member x neato-graph-bar/memory-fields-to-keep))
-		   mem-info-list :key #'car)))
-
-(defun neato-graph-bar/get-memory-attribute (alist attribute)
-  "Get the ATTRIBUTE from the memory info ALIST."
-  (cdr (find attribute alist :key #'car :test #'string=)))
-
 (defun neato-graph-bar/draw-graph (label portions &optional end-text)
   "Draw a bar graph.
 
@@ -132,6 +111,27 @@ USED and TOTAL should both be in kilobytes."
 	    (elt suffix-table log-used)
 	    (/ (float total) (expt 1024 log-total))
 	    (elt suffix-table log-total))))
+
+(defun neato-graph-bar/get-memory-info ()
+  "Retrieve the system memory information.
+
+This is obtained from `neato-graph-bar/memory-info-file', and
+filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
+  (let ((mem-info-list
+	 (mapcar (lambda (x) (split-string x ":" t))
+		 (with-temp-buffer
+		   (insert-file-contents neato-graph-bar/memory-info-file)
+		   (split-string (buffer-string) "\n" t)))))
+    (mapcar (lambda (x)
+	      (rplacd x
+		      (string-to-number (car (split-string (cadr x))))))
+	    mem-info-list)
+    (remove-if-not (lambda (x) (member x neato-graph-bar/memory-fields-to-keep))
+		   mem-info-list :key #'car)))
+
+(defun neato-graph-bar/get-memory-attribute (alist attribute)
+  "Get the ATTRIBUTE from the memory info ALIST."
+  (cdr (find attribute alist :key #'car :test #'string=)))
 
 (defun neato-graph-bar/draw-memory-graph ()
   "Draw memory graph"
