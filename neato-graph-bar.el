@@ -26,18 +26,6 @@ Currently expecting Linux meminfo format."
   :type '(file :must-match t)
   :group 'neato-graph-bar)
 
-(defvar-local neato-graph-bar/memory-fields-to-keep
-  '("MemTotal"
-    "MemFree"
-    "MemAvailable"
-    "Buffers"
-    "Cached"
-    "SwapTotal"
-    "SwapFree"
-    "SwapCached")
-  "Fields to keep when retrieving memory information, to keep
-memory use low and not have a bunch of unused info in the
-alist.")
 
 (defface neato-graph-bar/memory-used
   '((t
@@ -59,6 +47,19 @@ alist.")
      :inherit default))
   "Face for the portion of the memory graph repsenting caches"
   :group 'neato-graph-bar)
+
+(defvar-local neato-graph-bar/memory-fields-to-keep
+  '("MemTotal"
+    "MemFree"
+    "MemAvailable"
+    "Buffers"
+    "Cached"
+    "SwapTotal"
+    "SwapFree"
+    "SwapCached")
+  "Fields to keep when retrieving memory information, to keep
+memory use low and not have a bunch of unused info in the
+alist.")
 
 (defun neato-graph-bar/draw-graph (label portions &optional end-text)
   "Draw a bar graph.
