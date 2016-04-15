@@ -153,3 +153,21 @@ USED and TOTAL should both be in kilobytes."
 				  memory-used
 				  memory-total)))
     (neato-graph-bar/draw-graph " Mem" memory-graph-alist memory-end-text)))
+
+(defun neato-graph-bar/draw-swap-graph ()
+  (let* ((memory-info (neato-graph-bar/get-memory-info))
+	 (swap-total
+	  (neato-graph-bar/get-memory-attribute memory-info "SwapTotal"))
+	 (swap-free
+	  (neato-graph-bar/get-memory-attribute memory-info "SwapFree"))
+	 (swap-cached
+	  (neato-graph-bar/get-memory-attribute memory-info "SwapCached"))
+	 (swap-used (- swap-total swap-free swap-cached))
+	 (swap-graph-alist
+	  `(('neato-graph-bar/memory-used . ,(/ (float swap-used) swap-total))
+	    ('neato-graph-bar/memory-cache-buffer . ,(/ (float swap-cached)
+							swap-total))))
+	 (swap-end-text (neato-graph-bar/create-storage-status-text
+			 swap-used
+			 swap-total)))
+    (neato-graph-bar/draw-graph "Swap" swap-graph-alist swap-end-text)))
