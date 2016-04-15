@@ -118,8 +118,8 @@ arbitrary string (good for doing things such as providing a
 
 USED and TOTAL should both be in kilobytes."
   (let ((suffix-table '(?K ?M ?G ?T))
-	(log-used (floor (log used 1024)))
-	(log-total (floor (log total 1024))))
+	(log-used (if (= used 0) 0 (floor (log used 1024))))
+	(log-total (if (= total 0) 0 (floor (log total 1024)))))
     (format "%.1f%c/%.1f%c"
 	    (/ (float used) (expt 1024 log-used))
 	    (elt suffix-table log-used)
