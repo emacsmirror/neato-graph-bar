@@ -74,7 +74,60 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
   "Get the ATTRIBUTE from the memory info ALIST."
   (cdr (find attribute alist :key #'car :test #'string=)))
 
+(defun neato-graph-bar/draw-graph (label portions &optional end-text)
+  "Draw a bar graph.
+
+LABEL is the label in front of the graph. PORTIONS is an alist
+of font-percent value pairs, where percent is a float between 0
+and 1. Al unused space will automatically be marked as empty. For
+example, to specify that you want a graph drawn with face1 as the
+first 30%, and face2 the second 20%, with the rest empty, you
+would pass
+
+(('face1 . 0.3)
+ ('face2 . 0.2))
+
+for PORTIONS. END-TEXT is placed within the graph at the
+end. Unspecified, it defaults to a percentage, but can be any
+arbitrary string (good for doing things such as providing a
+\"30MB/100MB\" type counter for storage graphs)"
+  ;; 3 -> Space after label + '[' + ']'
+  (let ((bar-width (- (window-body-width) 3 (length label)))
+	(filled-percent 0.0))
+    (insert label " [")
+    (dolist (pair portions)
+      (let ((face (car pair))
+	    (percent (cdr pair)))
+	(insert (propertize
+		 (make-string (round (* percent bar-width)) ?|)
+		'font-lock-face face))
+	(setq filled-percent (+ percent filled-percent))))
+    (insert (make-string (- (+ bar-width (length label) 2)
+			    (current-column))
+	    ?\s))
+    (insert "]")
+    (if (null end-text)
+	(setq end-text (format "%.1f%%" (* filled-percent 100))))
+    (save-excursion
+      (backward-char (+ (length end-text) 1))
+      (insert end-text)
+      (delete-char (length end-text)))))
+
+(defun neato-graph-bar/create-storage-status-text (used total)
+  "Create an end-text suitable for storage bars (ie \"10M/200M\").
+
+USED and TOTAL should both be in kilobytes."
+  (let ((suffix-table '(?K ?M ?G ?T))
+	(log-used (floor (log used 1024)))
+	(log-total (floor (log total 1024))))
+    (format "%.1f%c/%.1f%c"
+	    (/ (float used) (expt 1024 log-used))
+	    (elt suffix-table log-used)
+	    (/ (float total) (expt 1024 log-total))
+	    (elt suffix-table log-total))))
+
 (defun neato-graph-bar/draw-memory-graph ()
+  "Draw memory graph"
   (let* ((memory-info (neato-graph-bar/get-memory-info))
 	 (memory-total
 	  (neato-graph-bar/get-memory-attribute memory-info "MemTotal"))
@@ -91,19 +144,12 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 	 ;; form, so I do here as well.
 	 (memory-used
 	  (- memory-total memory-free memory-buffers-cache))
-	 ;; 2 for []s, 5 for " Mem "
-	 (win-width (- (window-body-width) 2 5))
-	 (graph-fill-used
-	  (round (* (/ (float memory-used) memory-total) win-width)))
-	 (graph-fill-buffers-cache
-	  (round (* (/ (float memory-buffers-cache) memory-total) win-width))))
-    (insert " Mem [")
-    (insert (propertize (make-string graph-fill-used ?|)
-			'font-lock-face 'neato-graph-bar/memory-used))
-    (insert (propertize (make-string graph-fill-buffers-cache ?|)
-			'font-lock-face 'neato-graph-bar/memory-cache-buffer))
-    (insert (make-string (- win-width
-			    graph-fill-used
-			    graph-fill-buffers-cache) ?\s))
-    (insert "]\n")
-    ))
+	 (memory-graph-alist
+	  `(('neato-graph-bar/memory-used . ,(/ (float memory-used)
+					       memory-total))
+	    ('neato-graph-bar/memory-cache-buffer . ,(/ (float memory-buffers-cache)
+							memory-total))))
+	 (memory-end-text (neato-graph-bar/create-storage-status-text
+				  memory-used
+				  memory-total)))
+    (neato-graph-bar/draw-graph " Mem" memory-graph-alist memory-end-text)))
