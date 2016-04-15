@@ -46,11 +46,18 @@ alist.")
   "Face for the portion of the memory graph representing userspace memory"
   :group 'neato-graph-bar)
 
-(defface neato-graph-bar/memory-cache-buffer
+(defface neato-graph-bar/memory-buffer
+  '((t
+     :foreground "blue"
+     :inherit default))
+  "Face for the portion of the memory graph repsenting buffers"
+  :group 'neato-graph-bar)
+
+(defface neato-graph-bar/memory-cache
   '((t
      :foreground "yellow"
      :inherit default))
-  "Face for the portion of the memory graph repsenting caches and buffers"
+  "Face for the portion of the memory graph repsenting caches"
   :group 'neato-graph-bar)
 
 (defun neato-graph-bar/get-memory-info ()
@@ -133,9 +140,10 @@ USED and TOTAL should both be in kilobytes."
 	  (neato-graph-bar/get-memory-attribute memory-info "MemTotal"))
 	 (memory-free
 	  (neato-graph-bar/get-memory-attribute memory-info "MemFree"))
-	 (memory-buffers-cache
-	  (+ (neato-graph-bar/get-memory-attribute memory-info "Buffers")
-	     (neato-graph-bar/get-memory-attribute memory-info "Cached")))
+	 (memory-buffers
+	  (neato-graph-bar/get-memory-attribute memory-info "Buffers"))
+	 (memory-cached
+	  (neato-graph-bar/get-memory-attribute memory-info "Cached"))
 	 ;; Side note - it appears that there is a difference of 20MB (when I
 	 ;; tested) between `(- memory-total memory-free memory-buffers-cache)`
 	 ;; and the result of `(- memory-total memory-available)`... no idea
@@ -143,12 +151,14 @@ USED and TOTAL should both be in kilobytes."
 	 ;; reference, the file 'proc/sysinfo.c' from procps-ng uses the first
 	 ;; form, so I do here as well.
 	 (memory-used
-	  (- memory-total memory-free memory-buffers-cache))
+	  (- memory-total memory-free memory-buffers memory-cached))
 	 (memory-graph-alist
 	  `(('neato-graph-bar/memory-used . ,(/ (float memory-used)
-					       memory-total))
-	    ('neato-graph-bar/memory-cache-buffer . ,(/ (float memory-buffers-cache)
-							memory-total))))
+						memory-total))
+	    ('neato-graph-bar/memory-buffer . ,(/ (float memory-buffers)
+						 memory-total))
+	    ('neato-graph-bar/memory-cache . ,(/ (float memory-cached)
+						 memory-total))))
 	 (memory-end-text (neato-graph-bar/create-storage-status-text
 				  memory-used
 				  memory-total)))
@@ -165,7 +175,7 @@ USED and TOTAL should both be in kilobytes."
 	 (swap-used (- swap-total swap-free swap-cached))
 	 (swap-graph-alist
 	  `(('neato-graph-bar/memory-used . ,(/ (float swap-used) swap-total))
-	    ('neato-graph-bar/memory-cache-buffer . ,(/ (float swap-cached)
+	    ('neato-graph-bar/memory-cache . ,(/ (float swap-cached)
 							swap-total))))
 	 (swap-end-text (neato-graph-bar/create-storage-status-text
 			 swap-used
