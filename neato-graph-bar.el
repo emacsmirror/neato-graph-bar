@@ -134,8 +134,8 @@ example, to specify that you want a graph drawn with face1 as the
 first 30%, and face2 the second 20%, with the rest empty, you
 would pass
 
-(('face1 . 0.3)
- ('face2 . 0.2))
+((face1 . 0.3)
+ (face2 . 0.2))
 
 for PORTIONS. END-TEXT is placed within the graph at the
 end. Unspecified, it defaults to a percentage, but can be any
@@ -220,11 +220,11 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 	 (memory-used
 	  (- memory-total memory-free memory-buffers memory-cached))
 	 (memory-graph-alist
-	  `(('neato-graph-bar/memory-used . ,(/ (float memory-used)
+	  `((neato-graph-bar/memory-used . ,(/ (float memory-used)
 						memory-total))
-	    ('neato-graph-bar/memory-buffer . ,(/ (float memory-buffers)
+	    (neato-graph-bar/memory-buffer . ,(/ (float memory-buffers)
 						 memory-total))
-	    ('neato-graph-bar/memory-cache . ,(/ (float memory-cached)
+	    (neato-graph-bar/memory-cache . ,(/ (float memory-cached)
 						 memory-total))))
 	 (memory-end-text (neato-graph-bar/create-storage-status-text
 				  memory-used
@@ -242,8 +242,8 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 	  (neato-graph-bar/get-memory-attribute memory-info "SwapCached"))
 	 (swap-used (- swap-total swap-free swap-cached))
 	 (swap-graph-alist
-	  `(('neato-graph-bar/memory-used . ,(/ (float swap-used) swap-total))
-	    ('neato-graph-bar/memory-cache . ,(/ (float swap-cached)
+	  `((neato-graph-bar/memory-used . ,(/ (float swap-used) swap-total))
+	    (neato-graph-bar/memory-cache . ,(/ (float swap-cached)
 							swap-total))))
 	 (swap-end-text (neato-graph-bar/create-storage-status-text
 			 swap-used
@@ -311,10 +311,10 @@ ATTRIBUTE is a symbol as defined in `neato-graph-bar/cpu-field-names'."
 		  (neato-graph-bar/get-cpu-attribute cpu 'guest)
 		  (neato-graph-bar/get-cpu-attribute cpu 'guest-nice)))
 	 (cpu-graph-alist
-	  `(('neato-graph-bar/cpu-user . ,(/ (float cpu-user) cpu-total))
-	    ('neato-graph-bar/cpu-system . ,(/ (float cpu-system) cpu-total))
-	    ('neato-graph-bar/cpu-irq . ,(/ (float cpu-irq) cpu-total))
-	    ('neato-graph-bar/cpu-vm . ,(/ (float cpu-vm) cpu-total)))))
+	  `((neato-graph-bar/cpu-user . ,(/ (float cpu-user) cpu-total))
+	    (neato-graph-bar/cpu-system . ,(/ (float cpu-system) cpu-total))
+	    (neato-graph-bar/cpu-irq . ,(/ (float cpu-irq) cpu-total))
+	    (neato-graph-bar/cpu-vm . ,(/ (float cpu-vm) cpu-total)))))
     (neato-graph-bar/draw-graph cpu-name cpu-graph-alist)))
 
 (defun neato-graph-bar/draw-cpu-graph ()
