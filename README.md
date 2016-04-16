@@ -1,6 +1,8 @@
 neato-graph-bar.el - htop-like CPU and memory graphs for Emacs
 --------
 
+![neato-graph-bar picture](neato-graph-bar.png)
+
 A new mode that provides htop-like graphs for CPU and memory consumption. A good
 companion for proced.
 
