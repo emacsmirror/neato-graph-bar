@@ -11,6 +11,9 @@ Usage
 Run with `M-x neato-graph-bar` after (require)ing `'neato-graph-bar`. This
 requires neato-graph-bar.el to be on your load path.
 
+Configuration options are under 'Applications' -> 'Neato Graph Bar' in
+`M-x customize`.
+
 Known Bugs
 --------
 * Requires Linux's /proc/meminfo and /proc/stat right now, so may not be
