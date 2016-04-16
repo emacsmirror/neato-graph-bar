@@ -56,14 +56,14 @@ When non-nil, draw a single unified CPU graph.")
   '((t
      :foreground "blue"
      :inherit default))
-  "Face for the portion of the memory graph repsenting buffers"
+  "Face for the portion of the memory graph representing buffers"
   :group 'neato-graph-bar)
 
 (defface neato-graph-bar/memory-cache
   '((t
      :foreground "yellow"
      :inherit default))
-  "Face for the portion of the memory graph repsenting caches"
+  "Face for the portion of the memory graph representing caches"
   :group 'neato-graph-bar)
 
 (defface neato-graph-bar/cpu-user
