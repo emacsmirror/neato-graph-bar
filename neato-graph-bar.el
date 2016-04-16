@@ -134,6 +134,10 @@ alist.")
   nil
   "Update timer for graphs")
 
+(defvar-local neato-graph-bar/current-window
+  nil
+  "Current window")
+
 (defun neato-graph-bar ()
   "Displays system information graph bars"
   (interactive)
@@ -164,12 +168,16 @@ alist.")
   "Update the graphs."
   (dolist (buffer (buffer-list))
     (with-current-buffer buffer
-      (if (eq major-mode 'neato-graph-bar-mode)
-	  (neato-graph-bar/redraw)))))
+      (when (eq major-mode 'neato-graph-bar-mode)
+	(setq neato-graph-bar/current-window (get-buffer-window))
+	(unless (null neato-graph-bar/current-window)
+	  (neato-graph-bar/redraw))))))
 
 (defun neato-graph-bar/redraw (&rest x)
   "Neato Graph Bar revert function"
-  (if (= (window-width) 0) (return-from neato-graph-bar/update))
+  (if (= (window-width neato-graph-bar/current-window)
+	 0)
+      (return-from neato-graph-bar/update))
   (let ((buffer-read-only nil))
     (erase-buffer)
     (neato-graph-bar/draw-all-graphs)))
@@ -195,7 +203,9 @@ arbitrary string (good for doing things such as providing a
                                                (length label)) ?\s)
                                label))
          ;; 3 -> Space after label + '[' + ']'
-         (bar-width (- (window-body-width) 3 (length padded-label)))
+         (bar-width (- (window-body-width neato-graph-bar/current-window)
+                       (length padded-label)
+                       3))
 	 (filled-percent 0.0))
     (insert padded-label " [")
     (dolist (pair portions)
