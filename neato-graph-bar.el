@@ -315,7 +315,10 @@ ATTRIBUTE is a symbol as defined in `neato-graph-bar/cpu-field-names'."
 	    (neato-graph-bar/cpu-system . ,(/ (float cpu-system) cpu-total))
 	    (neato-graph-bar/cpu-irq . ,(/ (float cpu-irq) cpu-total))
 	    (neato-graph-bar/cpu-vm . ,(/ (float cpu-vm) cpu-total)))))
-    (neato-graph-bar/draw-graph cpu-name cpu-graph-alist)))
+    ;; First run has cpu-total at 0, which will cause a div-by-0.
+    ;; If we find any NaNs, skip drawing
+    (if (not (find -0.0e+NaN cpu-graph-alist :key #'cdr))
+	(neato-graph-bar/draw-graph cpu-name cpu-graph-alist))))
 
 (defun neato-graph-bar/draw-cpu-graph ()
   "Draw the CPU graph."
