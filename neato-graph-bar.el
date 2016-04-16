@@ -45,6 +45,12 @@ When non-nil, draw a single unified CPU graph.")
   :type 'wholenum
   :group 'neato-graph-bar)
 
+(defcustom neato-graph-bar/refresh-time
+  1
+  "Number of seconds to wait before refreshing"
+  :type 'number
+  :group 'neato-graph-bar)
+
 (defface neato-graph-bar/memory-used
   '((t
      :foreground "green"
@@ -123,6 +129,49 @@ alist.")
 (defvar-local neato-graph-bar/cpu-stats-previous
   nil
   "Previous statistics of CPU usage information")
+
+(defvar-local neato-graph-bar/update-timer
+  nil
+  "Update timer for graphs")
+
+(defun neato-graph-bar ()
+  "Displays system information graph bars"
+  (interactive)
+  (let ((buffer (get-buffer-create "*Neato Graph Bar*")))
+    (set-buffer buffer)
+    (when (zerop (buffer-size))
+      (neato-graph-bar-mode)
+      (neato-graph-bar/update))
+    (pop-to-buffer buffer)
+    (if (null neato-graph-bar/update-timer)
+	(setq neato-graph-bar/update-timer
+	      (run-at-time 0
+			   neato-graph-bar/refresh-time
+			   'neato-graph-bar/update)))))
+
+(define-derived-mode neato-graph-bar-mode
+  special-mode
+  "Neato Graph Bar"
+  (set (make-local-variable 'revert-buffer-function)
+       'neato-graph-bar/update)
+  (add-hook 'kill-buffer-hook
+	    (lambda ()
+	      (when (timerp neato-graph-bar/update-timer)
+		(cancel-timer neato-graph-bar/update-timer)))))
+
+(defun neato-graph-bar/update ()
+  "Update the graphs."
+  (dolist (buffer (buffer-list))
+    (with-current-buffer buffer
+      (if (eq major-mode 'neato-graph-bar-mode)
+	  (neato-graph-bar/update)))))
+
+(defun neato-graph-bar/update (&rest x)
+  "Neato Graph Bar revert function"
+  (if (= (window-width) 0) (return-from neato-graph-bar/update))
+  (let ((buffer-read-only nil))
+    (erase-buffer)
+    (neato-graph-bar/draw-all-graphs)))
 
 (defun neato-graph-bar/draw-graph (label portions &optional end-text)
   "Draw a bar graph.
@@ -338,3 +387,5 @@ ATTRIBUTE is a symbol as defined in `neato-graph-bar/cpu-field-names'."
   (insert "\n")
   (neato-graph-bar/draw-swap-graph)
   (insert "\n"))
+
+(provide 'neato-graph-bar)
