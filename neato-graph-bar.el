@@ -164,9 +164,9 @@ alist.")
   (dolist (buffer (buffer-list))
     (with-current-buffer buffer
       (if (eq major-mode 'neato-graph-bar-mode)
-	  (neato-graph-bar/update)))))
+	  (neato-graph-bar/redraw)))))
 
-(defun neato-graph-bar/update (&rest x)
+(defun neato-graph-bar/redraw (&rest x)
   "Neato Graph Bar revert function"
   (if (= (window-width) 0) (return-from neato-graph-bar/update))
   (let ((buffer-read-only nil))
