@@ -313,8 +313,7 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 (defun neato-graph-bar/get-cpu-stats ()
   "Get the difference in the system CPU statistics since last update.
 
-The old information snapshot is moved to `neato-graph-bar/cpu-stats-previous',
-and the new is placed in `neato-graph-bar/cpu-stats-current'.
+The old information snapshot is moved to `neato-graph-bar/cpu-stats-previous'.
 
 This is obtained from `neato-graph-bar/cpu-stat-file', and made
 into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
