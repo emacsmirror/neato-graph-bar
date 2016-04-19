@@ -364,7 +364,9 @@ ATTRIBUTE is a symbol as defined in `neato-graph-bar/cpu-field-names'."
   "Helper to draw the CPU graph(s). Does the actual work."
   (let* ((cpu-name (upcase (car cpu)))
 	 (cpu-total (neato-graph-bar/get-cpu-stat-total cpu))
-	 (cpu-user (neato-graph-bar/get-cpu-attribute cpu 'user))
+	 (cpu-user (+
+		    (neato-graph-bar/get-cpu-attribute cpu 'user)
+		    (neato-graph-bar/get-cpu-attribute cpu 'nice)))
 	 (cpu-system (neato-graph-bar/get-cpu-attribute cpu 'system))
 	 (cpu-irq (+
 		   (neato-graph-bar/get-cpu-attribute cpu 'irq)
