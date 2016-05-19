@@ -285,14 +285,14 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 	  (- memory-total memory-free memory-buffers memory-cached))
 	 (memory-graph-alist
 	  `((neato-graph-bar/memory-used . ,(/ (float memory-used)
-						memory-total))
+					       memory-total))
 	    (neato-graph-bar/memory-buffer . ,(/ (float memory-buffers)
 						 memory-total))
 	    (neato-graph-bar/memory-cache . ,(/ (float memory-cached)
-						 memory-total))))
+						memory-total))))
 	 (memory-end-text (neato-graph-bar/create-storage-status-text
-				  memory-used
-				  memory-total)))
+			   memory-used
+			   memory-total)))
     (neato-graph-bar/draw-graph "Mem" memory-graph-alist memory-end-text)))
 
 (defun neato-graph-bar/draw-swap-graph ()
@@ -308,7 +308,7 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 	 (swap-graph-alist
 	  `((neato-graph-bar/memory-used . ,(/ (float swap-used) swap-total))
 	    (neato-graph-bar/memory-cache . ,(/ (float swap-cached)
-							swap-total))))
+						swap-total))))
 	 (swap-end-text (neato-graph-bar/create-storage-status-text
 			 swap-used
 			 swap-total)))
@@ -328,14 +328,14 @@ into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
 		    (remove-if-not
 		     (lambda (x) (string= (substring x 0 3) "cpu"))
 		     (split-string (buffer-string) "\n" t)))))
-	(cpu-stat-list
-	 (mapcar (lambda (x)
-		   (cons (car x) (map 'list (lambda (y z)
-					      (cons y (string-to-number z)))
-				      neato-graph-bar/cpu-field-names
-				      (cdr x))))
-		 cpu-stat-list-strings))
-	(cpu-diff nil))
+	 (cpu-stat-list
+	  (mapcar (lambda (x)
+		    (cons (car x) (map 'list (lambda (y z)
+					       (cons y (string-to-number z)))
+				       neato-graph-bar/cpu-field-names
+				       (cdr x))))
+		  cpu-stat-list-strings))
+	 (cpu-diff nil))
     ;; Account for empty first run
     (if	(null neato-graph-bar/cpu-stats-previous)
 	(setq neato-graph-bar/cpu-stats-previous cpu-stat-list))
