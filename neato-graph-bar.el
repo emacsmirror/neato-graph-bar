@@ -159,6 +159,7 @@ alist.")
   "Neato Graph Bar"
   (set (make-local-variable 'revert-buffer-function)
        'neato-graph-bar/update)
+  (setq cursor-type nil)
   (add-hook 'kill-buffer-hook
 	    (lambda ()
 	      (when (timerp neato-graph-bar/update-timer)
