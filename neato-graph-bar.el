@@ -378,7 +378,7 @@ ATTRIBUTE is a symbol as defined in `neato-graph-bar/cpu-field-names'."
 	 (cpu-graph-alist
 	  `((neato-graph-bar/cpu-user . ,(/ (float cpu-user) cpu-total))
 	    (neato-graph-bar/cpu-system . ,(/ (float cpu-system) cpu-total))
-	    (neato-graph-bar/cpu-irq . ,(/ (float cpu-irq) cpu-total))
+	    (neato-graph-bar/cpu-interrupt . ,(/ (float cpu-irq) cpu-total))
 	    (neato-graph-bar/cpu-vm . ,(/ (float cpu-vm) cpu-total)))))
     ;; First run has cpu-total at 0, which will cause a div-by-0.
     ;; If we find any NaNs, skip drawing
