@@ -331,22 +331,19 @@ into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
 		     (split-string (buffer-string) "\n" t)))))
 	 (cpu-stat-list
 	  (mapcar (lambda (x)
-		    (cons (car x) (map 'list (lambda (y z)
-					       (cons y (string-to-number z)))
-				       neato-graph-bar/cpu-field-names
-				       (cdr x))))
+		    (cons (car x)
+			  (pairlis neato-graph-bar/cpu-field-names
+				   (mapcar #'string-to-number (cdr x)))))
 		  cpu-stat-list-strings))
-	 (cpu-diff nil))
+	 (cpu-diff (copy-tree cpu-stat-list)))
     ;; Account for empty first run
     (if	(null neato-graph-bar/cpu-stats-previous)
 	(setq neato-graph-bar/cpu-stats-previous cpu-stat-list))
-    (setq cpu-diff
-	  (map 'list (lambda (n o)
-		       (cons (car n)
-			     (map 'list (lambda (x y)
-					  (cons (car x) (- (cdr x) (cdr y))))
-				  (cdr n) (cdr o))))
-	       cpu-stat-list neato-graph-bar/cpu-stats-previous))
+    (map 'list (lambda (n o)
+		 (map 'list (lambda (x y)
+			      (rplacd x (- (cdr x) (cdr y))))
+		      (cdr n) (cdr o)))
+	 cpu-diff neato-graph-bar/cpu-stats-previous)
     (setq neato-graph-bar/cpu-stats-previous cpu-stat-list)
     cpu-diff))
 
