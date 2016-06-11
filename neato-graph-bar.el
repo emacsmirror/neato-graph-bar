@@ -326,7 +326,7 @@ into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
 	  (mapcar (lambda (x) (split-string x " " t))
 		  (with-temp-buffer
 		    (insert-file-contents neato-graph-bar/cpu-stat-file)
-		    (remove-if-not
+		    (delete-if-not
 		     (lambda (x) (string= (substring x 0 3) "cpu"))
 		     (split-string (buffer-string) "\n" t)))))
 	 (cpu-stat-list
