@@ -250,10 +250,10 @@ USED and TOTAL should both be in kilobytes."
 This is obtained from `neato-graph-bar/memory-info-file', and
 filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
   (let ((mem-info-list
-	 (mapcar (lambda (x) (split-string x ":" t))
-		 (with-temp-buffer
-		   (insert-file-contents neato-graph-bar/memory-info-file)
-		   (split-string (buffer-string) "\n" t)))))
+	 (mapc (lambda (x) (split-string x ":" t))
+	       (with-temp-buffer
+		 (insert-file-contents neato-graph-bar/memory-info-file)
+		 (split-string (buffer-string) "\n" t)))))
     (delete-if-not (lambda (x) (member x neato-graph-bar/memory-fields-to-keep))
 		   mem-info-list
 		   :key #'car)
