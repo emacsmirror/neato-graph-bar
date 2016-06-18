@@ -14,6 +14,8 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+(require 'cl-lib)
+
 (defgroup neato-graph-bar nil
   "Neat-o graph bars for various things"
   :group 'applications)
@@ -254,9 +256,9 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 		 (with-temp-buffer
 		   (insert-file-contents neato-graph-bar/memory-info-file)
 		   (split-string (buffer-string) "\n" t)))))
-    (delete-if-not (lambda (x) (member x neato-graph-bar/memory-fields-to-keep))
-		   mem-info-list
-		   :key #'car)
+    (cl-delete-if-not (lambda (x) (member x neato-graph-bar/memory-fields-to-keep))
+		      mem-info-list
+		      :key #'car)
     (mapc (lambda (x)
 	    (rplacd x
 		    (string-to-number (car (split-string (cadr x))))))
@@ -264,7 +266,7 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 
 (defun neato-graph-bar/get-memory-attribute (alist attribute)
   "Get the ATTRIBUTE from the memory info ALIST."
-  (cdr (find attribute alist :key #'car :test #'string=)))
+  (cdr (cl-find attribute alist :key #'car :test #'string=)))
 
 (defun neato-graph-bar/draw-memory-graph ()
   "Draw memory graph."
@@ -327,30 +329,30 @@ into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
 	  (mapcar (lambda (x) (split-string x " " t))
 		  (with-temp-buffer
 		    (insert-file-contents neato-graph-bar/cpu-stat-file)
-		    (delete-if-not
+		    (cl-delete-if-not
 		     (lambda (x) (string= (substring x 0 3) "cpu"))
 		     (split-string (buffer-string) "\n" t)))))
 	 (cpu-stat-list
 	  (mapcar (lambda (x)
 		    (cons (car x)
-			  (pairlis neato-graph-bar/cpu-field-names
-				   (mapcar #'string-to-number (cdr x)))))
+			  (cl-pairlis neato-graph-bar/cpu-field-names
+				      (mapcar #'string-to-number (cdr x)))))
 		  cpu-stat-list-strings))
 	 (cpu-diff (copy-tree cpu-stat-list)))
     ;; Account for empty first run
     (if	(null neato-graph-bar/cpu-stats-previous)
 	(setq neato-graph-bar/cpu-stats-previous cpu-stat-list))
-    (map 'list (lambda (n o)
-		 (map 'list (lambda (x y)
-			      (rplacd x (- (cdr x) (cdr y))))
-		      (cdr n) (cdr o)))
-	 cpu-diff neato-graph-bar/cpu-stats-previous)
+    (cl-map 'list (lambda (n o)
+		    (cl-map 'list (lambda (x y)
+				    (rplacd x (- (cdr x) (cdr y))))
+			    (cdr n) (cdr o)))
+	    cpu-diff neato-graph-bar/cpu-stats-previous)
     (setq neato-graph-bar/cpu-stats-previous cpu-stat-list)
     cpu-diff))
 
 (defun neato-graph-bar/get-cpu-stat-total (cpu)
   "Get the time total for CPU"
-  (reduce #'+ (mapcar #'cdr (cdr cpu))))
+  (cl-reduce #'+ (mapcar #'cdr (cdr cpu))))
 
 (defun neato-graph-bar/get-cpu-attribute (cpu attribute)
   "Get ATTRIBUTE from CPU.
@@ -381,8 +383,8 @@ ATTRIBUTE is a symbol as defined in `neato-graph-bar/cpu-field-names'."
 	    (neato-graph-bar/cpu-vm . ,(/ (float cpu-vm) cpu-total)))))
     ;; First run has cpu-total at 0, which will cause a div-by-0.
     ;; If we find any NaNs, skip drawing
-    (if (not (find -0.0e+NaN cpu-graph-alist :key #'cdr))
-	(neato-graph-bar/draw-graph cpu-name cpu-graph-alist))))
+    (unless (cl-find -0.0e+NaN cpu-graph-alist :key #'cdr)
+      (neato-graph-bar/draw-graph cpu-name cpu-graph-alist))))
 
 (defun neato-graph-bar/draw-cpu-graph ()
   "Draw the CPU graph."
