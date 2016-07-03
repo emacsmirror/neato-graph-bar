@@ -183,7 +183,8 @@ alist.")
       (return-from neato-graph-bar/update))
   (let ((buffer-read-only nil))
     (erase-buffer)
-    (neato-graph-bar/draw-all-graphs)))
+    (neato-graph-bar/draw-all-graphs))
+  (goto-char (point-min)))
 
 (defun neato-graph-bar/draw-graph (label portions &optional end-text)
   "Draw a bar graph.
