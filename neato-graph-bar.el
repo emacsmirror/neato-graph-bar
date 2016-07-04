@@ -141,7 +141,7 @@ alist.")
   "Current window")
 
 (defun neato-graph-bar ()
-  "Displays system information graph bars"
+  "Displays system information graph bars."
   (interactive)
   (let ((buffer (get-buffer-create "*Neato Graph Bar*")))
     (set-buffer buffer)
@@ -150,11 +150,11 @@ alist.")
       (neato-graph-bar-mode)
       (neato-graph-bar/update))
     (pop-to-buffer buffer)
-    (if (null neato-graph-bar/update-timer)
-	(setq neato-graph-bar/update-timer
-	      (run-at-time 0
-			   neato-graph-bar/refresh-time
-			   'neato-graph-bar/update)))))
+    (unless neato-graph-bar/update-timer
+      (setq neato-graph-bar/update-timer
+	    (run-at-time 0
+			 neato-graph-bar/refresh-time
+			 'neato-graph-bar/update)))))
 
 (define-derived-mode neato-graph-bar-mode
   special-mode
@@ -164,8 +164,8 @@ alist.")
   (setq cursor-type nil)
   (add-hook 'kill-buffer-hook
 	    (lambda ()
-	      (when (timerp neato-graph-bar/update-timer)
-		(cancel-timer neato-graph-bar/update-timer)))))
+	      (if (timerp neato-graph-bar/update-timer)
+		  (cancel-timer neato-graph-bar/update-timer)))))
 
 (defun neato-graph-bar/update ()
   "Update the graphs."
@@ -173,13 +173,12 @@ alist.")
     (with-current-buffer buffer
       (when (eq major-mode 'neato-graph-bar-mode)
 	(setq neato-graph-bar/current-window (get-buffer-window nil t))
-	(unless (null neato-graph-bar/current-window)
-	  (neato-graph-bar/redraw))))))
+	(if neato-graph-bar/current-window
+	    (neato-graph-bar/redraw))))))
 
 (defun neato-graph-bar/redraw (&rest x)
-  "Neato Graph Bar revert function"
-  (if (= (window-width neato-graph-bar/current-window)
-	 0)
+  "Neato Graph Bar revert function."
+  (if (zerop (window-width neato-graph-bar/current-window))
       (return-from neato-graph-bar/update))
   (let ((buffer-read-only nil))
     (erase-buffer)
@@ -202,7 +201,7 @@ would pass
 for PORTIONS. END-TEXT is placed within the graph at the
 end. Unspecified, it defaults to a percentage, but can be any
 arbitrary string (good for doing things such as providing a
-\"30MB/100MB\" type counter for storage graphs)"
+\"30MB/100MB\" type counter for storage graphs)."
   (let* ((padded-label (concat (make-string (- neato-graph-bar/label-padding
                                                (length label)) ?\s)
                                label))
@@ -352,7 +351,7 @@ into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
     cpu-diff))
 
 (defun neato-graph-bar/get-cpu-stat-total (cpu)
-  "Get the time total for CPU"
+  "Get the time total for CPU."
   (cl-reduce #'+ (mapcar #'cdr (cdr cpu))))
 
 (defun neato-graph-bar/get-cpu-attribute (cpu attribute)
