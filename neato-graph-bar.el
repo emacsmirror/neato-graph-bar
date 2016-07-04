@@ -216,8 +216,7 @@ arbitrary string (good for doing things such as providing a
 	 (filled-percent 0.0))
     (insert padded-label " [")
     (dolist (pair portions)
-      (let ((face (car pair))
-	    (percent (cdr pair)))
+      (cl-destructuring-bind (face . percent) pair
 	(insert (propertize
 		 (make-string (round (* percent bar-width)) ?|)
 		'font-lock-face face))
