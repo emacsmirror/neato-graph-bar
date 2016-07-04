@@ -282,8 +282,7 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 	 ;; *why*. This 20MB is likely kernel memory, I bet. Anyways, my
 	 ;; reference, the file 'proc/sysinfo.c' from procps-ng uses the first
 	 ;; form, so I do here as well.
-	 (memory-used
-	  (- memory-total memory-free memory-buffers memory-cached))
+	 (memory-used (- memory-total memory-free memory-buffers memory-cached))
 	 (memory-graph-alist
 	  `((neato-graph-bar/memory-used . ,(/ (float memory-used)
 					       memory-total))
