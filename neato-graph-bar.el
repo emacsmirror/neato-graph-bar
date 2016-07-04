@@ -258,9 +258,7 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
     (cl-delete-if-not (lambda (x) (member x neato-graph-bar/memory-fields-to-keep))
 		      mem-info-list
 		      :key #'car)
-    (mapc (lambda (x)
-	    (rplacd x
-		    (string-to-number (car (split-string (cadr x))))))
+    (mapc (lambda (x) (rplacd x (string-to-number (car (split-string (cadr x))))))
 	  mem-info-list)))
 
 (defun neato-graph-bar/get-memory-attribute (alist attribute)
