@@ -266,7 +266,7 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
 
 (defun neato-graph-bar/get-memory-attribute (alist attribute)
   "Get the ATTRIBUTE from the memory info ALIST."
-  (cdr (cl-find attribute alist :key #'car :test #'string=)))
+  (cdr (assoc attribute alist)))
 
 (defun neato-graph-bar/draw-memory-graph ()
   "Draw memory graph."
