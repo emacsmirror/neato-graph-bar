@@ -261,58 +261,49 @@ filtered down to entries listed in `neato-graph-bar/memory-fields-to-keep'."
     (mapc (lambda (x) (rplacd x (string-to-number (car (split-string (cadr x))))))
 	  mem-info-list)))
 
-(defun neato-graph-bar/get-memory-attribute (alist attribute)
-  "Get the ATTRIBUTE from the memory info ALIST."
-  (cdr (assoc attribute alist)))
-
 (defun neato-graph-bar/draw-memory-graph ()
   "Draw memory graph."
-  (let* ((memory-info (neato-graph-bar/get-memory-info))
-	 (memory-total
-	  (neato-graph-bar/get-memory-attribute memory-info "MemTotal"))
-	 (memory-free
-	  (neato-graph-bar/get-memory-attribute memory-info "MemFree"))
-	 (memory-buffers
-	  (neato-graph-bar/get-memory-attribute memory-info "Buffers"))
-	 (memory-cached
-	  (neato-graph-bar/get-memory-attribute memory-info "Cached"))
-	 ;; Side note - it appears that there is a difference of 20MB (when I
-	 ;; tested) between `(- memory-total memory-free memory-buffers-cache)`
-	 ;; and the result of `(- memory-total memory-available)`... no idea
-	 ;; *why*. This 20MB is likely kernel memory, I bet. Anyways, my
-	 ;; reference, the file 'proc/sysinfo.c' from procps-ng uses the first
-	 ;; form, so I do here as well.
-	 (memory-used (- memory-total memory-free memory-buffers memory-cached))
-	 (memory-graph-alist
-	  `((neato-graph-bar/memory-used . ,(/ (float memory-used)
-					       memory-total))
-	    (neato-graph-bar/memory-buffer . ,(/ (float memory-buffers)
-						 memory-total))
-	    (neato-graph-bar/memory-cache . ,(/ (float memory-cached)
-						memory-total))))
-	 (memory-end-text (neato-graph-bar/create-storage-status-text
-			   memory-used
-			   memory-total)))
-    (neato-graph-bar/draw-graph "Mem" memory-graph-alist memory-end-text)))
+  (let ((memory-info (neato-graph-bar/get-memory-info)))
+    (cl-flet ((get-attribute (x) (cdr (assoc x memory-info))))
+      (let* ((memory-total (get-attribute "MemTotal"))
+	     (memory-free (get-attribute "MemFree"))
+	     (memory-buffers (get-attribute "Buffers"))
+	     (memory-cached (get-attribute "Cached"))
+	     ;; Side note - it appears that there is a difference of 20MB (when
+	     ;; I tested) between `(- memory-total memory-free
+	     ;; memory-buffers-cache)` and the result of `(- memory-total
+	     ;; memory-available)`... no idea *why*. This 20MB is likely kernel
+	     ;; memory, I bet. Anyways, my reference, the file 'proc/sysinfo.c'
+	     ;; from procps-ng uses the first form, so I do here as well.
+	     (memory-used (- memory-total memory-free memory-buffers memory-cached))
+	     (memory-graph-alist
+	      `((neato-graph-bar/memory-used . ,(/ (float memory-used)
+						   memory-total))
+		(neato-graph-bar/memory-buffer . ,(/ (float memory-buffers)
+						     memory-total))
+		(neato-graph-bar/memory-cache . ,(/ (float memory-cached)
+						    memory-total))))
+	     (memory-end-text (neato-graph-bar/create-storage-status-text
+			       memory-used
+			       memory-total)))
+	(neato-graph-bar/draw-graph "Mem" memory-graph-alist memory-end-text)))))
 
 (defun neato-graph-bar/draw-swap-graph ()
   "Draw swap graph."
-  (let* ((memory-info (neato-graph-bar/get-memory-info))
-	 (swap-total
-	  (neato-graph-bar/get-memory-attribute memory-info "SwapTotal"))
-	 (swap-free
-	  (neato-graph-bar/get-memory-attribute memory-info "SwapFree"))
-	 (swap-cached
-	  (neato-graph-bar/get-memory-attribute memory-info "SwapCached"))
-	 (swap-used (- swap-total swap-free swap-cached))
-	 (swap-graph-alist
-	  `((neato-graph-bar/memory-used . ,(/ (float swap-used) swap-total))
-	    (neato-graph-bar/memory-cache . ,(/ (float swap-cached)
-						swap-total))))
-	 (swap-end-text (neato-graph-bar/create-storage-status-text
-			 swap-used
-			 swap-total)))
-    (neato-graph-bar/draw-graph "Swap" swap-graph-alist swap-end-text)))
+  (let ((memory-info (neato-graph-bar/get-memory-info)))
+    (cl-flet ((get-attribute (x) (cdr (assoc x memory-info))))
+      (let* ((swap-total (get-attribute "SwapTotal"))
+	     (swap-free (get-attribute "SwapFree"))
+	     (swap-cached (get-attribute "SwapCached"))
+	     (swap-used (- swap-total swap-free swap-cached))
+	     (swap-graph-alist
+	      `((neato-graph-bar/memory-used . ,(/ (float swap-used) swap-total))
+		(neato-graph-bar/memory-cache . ,(/ (float swap-cached)
+						    swap-total))))
+	     (swap-end-text (neato-graph-bar/create-storage-status-text
+			     swap-used
+			     swap-total)))
+	(neato-graph-bar/draw-graph "Swap" swap-graph-alist swap-end-text)))))
 
 (defun neato-graph-bar/get-cpu-stats ()
   "Get the difference in the system CPU statistics since last update.
@@ -346,38 +337,29 @@ into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
     (setq neato-graph-bar/cpu-stats-previous cpu-stat-list)
     cpu-diff))
 
-(defun neato-graph-bar/get-cpu-stat-total (cpu)
-  "Get the time total for CPU."
-  (cl-reduce #'+ (mapcar #'cdr (cdr cpu))))
-
-(defun neato-graph-bar/get-cpu-attribute (cpu attribute)
-  "Get ATTRIBUTE from CPU.
-
-CPU is a string identifier, as found in the originating statistics file.
-ATTRIBUTE is a symbol as defined in `neato-graph-bar/cpu-field-names'."
-  (cdr (assoc attribute (cdr cpu))))
-
 (defun neato-graph-bar/draw-cpu-graph-helper (cpu)
   "Helper to draw the CPU graph(s). Does the actual work."
-  (let* ((cpu-name (upcase (car cpu)))
-	 (cpu-total (neato-graph-bar/get-cpu-stat-total cpu))
-	 (cpu-user (+ (neato-graph-bar/get-cpu-attribute cpu 'user)
-		      (neato-graph-bar/get-cpu-attribute cpu 'nice)))
-	 (cpu-system (neato-graph-bar/get-cpu-attribute cpu 'system))
-	 (cpu-irq (+ (neato-graph-bar/get-cpu-attribute cpu 'irq)
-		     (neato-graph-bar/get-cpu-attribute cpu 'softirq)))
-	 (cpu-vm (+ (neato-graph-bar/get-cpu-attribute cpu 'steal)
-		    (neato-graph-bar/get-cpu-attribute cpu 'guest)
-		    (neato-graph-bar/get-cpu-attribute cpu 'guest-nice)))
-	 (cpu-graph-alist
-	  `((neato-graph-bar/cpu-user . ,(/ (float cpu-user) cpu-total))
-	    (neato-graph-bar/cpu-system . ,(/ (float cpu-system) cpu-total))
-	    (neato-graph-bar/cpu-interrupt . ,(/ (float cpu-irq) cpu-total))
-	    (neato-graph-bar/cpu-vm . ,(/ (float cpu-vm) cpu-total)))))
-    ;; First run has cpu-total at 0, which will cause a div-by-0.
-    ;; If we find any NaNs, skip drawing
-    (unless (cl-find -0.0e+NaN cpu-graph-alist :key #'cdr)
-      (neato-graph-bar/draw-graph cpu-name cpu-graph-alist))))
+  (cl-flet ((stat-total () (cl-reduce #'+ (mapcar #'cdr (cdr cpu))))
+	    (get-attribute (x) (cdr (assoc x (cdr cpu)))))
+    (let* ((cpu-name (upcase (car cpu)))
+	   (cpu-total (stat-total))
+	   (cpu-user (+ (get-attribute 'user)
+			(get-attribute 'nice)))
+	   (cpu-system (get-attribute 'system))
+	   (cpu-irq (+ (get-attribute 'irq)
+		       (get-attribute 'softirq)))
+	   (cpu-vm (+ (get-attribute 'steal)
+		      (get-attribute 'guest)
+		      (get-attribute 'guest-nice)))
+	   (cpu-graph-alist
+	    `((neato-graph-bar/cpu-user . ,(/ (float cpu-user) cpu-total))
+	      (neato-graph-bar/cpu-system . ,(/ (float cpu-system) cpu-total))
+	      (neato-graph-bar/cpu-interrupt . ,(/ (float cpu-irq) cpu-total))
+	      (neato-graph-bar/cpu-vm . ,(/ (float cpu-vm) cpu-total)))))
+      ;; First run has cpu-total at 0, which will cause a div-by-0.
+      ;; If we find any NaNs, skip drawing
+      (unless (cl-find -0.0e+NaN cpu-graph-alist :key #'cdr)
+	(neato-graph-bar/draw-graph cpu-name cpu-graph-alist)))))
 
 (defun neato-graph-bar/draw-cpu-graph ()
   "Draw the CPU graph."
