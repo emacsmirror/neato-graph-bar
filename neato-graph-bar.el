@@ -39,7 +39,8 @@ Currently expecting Linux /proc/stat format"
 (defcustom neato-graph-bar/unified-cpu-graph
   nil
   "When nil, draw separate graphs for each CPU.
-When non-nil, draw a single unified CPU graph.")
+When non-nil, draw a single unified CPU graph."
+  :type 'boolean)
 
 (defcustom neato-graph-bar/label-padding
   4
