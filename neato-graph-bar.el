@@ -229,7 +229,7 @@ arbitrary string (good for doing things such as providing a
     (unless end-text
       (setq end-text (format "%.1f%%" (* filled-percent 100))))
     (save-excursion
-      (backward-char (+ (length end-text) 1))
+      (backward-char (1+ (length end-text)))
       (insert end-text)
       (delete-char (length end-text)))))
 
