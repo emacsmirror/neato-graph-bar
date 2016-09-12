@@ -340,7 +340,7 @@ into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
 
 (defun neato-graph-bar/draw-cpu-graph-helper (cpu)
   "Helper to draw the CPU graph(s). Does the actual work."
-  (cl-flet ((stat-total () (cl-reduce #'+ (mapcar #'cdr (cdr cpu))))
+  (cl-flet ((stat-total () (cl-reduce #'+ (cdr cpu) :key #'cdr))
 	    (get-attribute (x) (cdr (assoc x (cdr cpu)))))
     (let* ((cpu-name (upcase (car cpu)))
 	   (cpu-total (stat-total))
