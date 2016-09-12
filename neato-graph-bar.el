@@ -221,7 +221,7 @@ arbitrary string (good for doing things such as providing a
 	(insert (propertize
 		 (make-string (round (* percent bar-width)) ?|)
 		'font-lock-face face))
-	(setq filled-percent (+ percent filled-percent))))
+	(cl-incf filled-percent percent)))
     (insert (make-string (- (+ bar-width (length padded-label) 2)
 			    (current-column))
 	    ?\s))
