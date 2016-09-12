@@ -206,13 +206,13 @@ arbitrary string (good for doing things such as providing a
   (let* ((padded-label (concat (make-string (- neato-graph-bar/label-padding
                                                (length label)) ?\s)
                                label))
-         ;; 3 -> Space after label + '[' + ']'
          (bar-width (- (window-body-width neato-graph-bar/current-window)
                        ;; Seems that Emacs will wrap the line if it extends
                        ;; all the way to the end of the window in a terminal...
                        ;; not what we want... so adjust for it.
                        (if (display-graphic-p) 0 1)
                        (length padded-label)
+                       ; 3 -> Space after label + '[' + ']'
                        3))
 	 (filled-percent 0.0))
     (insert padded-label " [")
