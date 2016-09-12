@@ -226,8 +226,8 @@ arbitrary string (good for doing things such as providing a
 			    (current-column))
 	    ?\s))
     (insert "]")
-    (if (null end-text)
-	(setq end-text (format "%.1f%%" (* filled-percent 100))))
+    (unless end-text
+      (setq end-text (format "%.1f%%" (* filled-percent 100))))
     (save-excursion
       (backward-char (+ (length end-text) 1))
       (insert end-text)
@@ -328,8 +328,8 @@ into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
 		  cpu-stat-list-strings))
 	 (cpu-diff (copy-tree cpu-stat-list)))
     ;; Account for empty first run
-    (if	(null neato-graph-bar/cpu-stats-previous)
-	(setq neato-graph-bar/cpu-stats-previous cpu-stat-list))
+    (unless neato-graph-bar/cpu-stats-previous
+      (setq neato-graph-bar/cpu-stats-previous cpu-stat-list))
     (cl-map 'list (lambda (n o)
 		    (cl-map 'list (lambda (x y)
 				    (rplacd x (- (cdr x) (cdr y))))
