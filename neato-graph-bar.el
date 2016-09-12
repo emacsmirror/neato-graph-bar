@@ -367,11 +367,10 @@ into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
   (let ((cpu-info (neato-graph-bar/get-cpu-stats)))
     (if neato-graph-bar/unified-cpu-graph
 	(neato-graph-bar/draw-cpu-graph-helper (car cpu-info))
-      (progn
-	(dolist (cpu (cdr cpu-info))
-	  (neato-graph-bar/draw-cpu-graph-helper cpu)
-	  (insert "\n"))
-	(backward-delete-char 1)))))
+      (dolist (cpu (cdr cpu-info))
+	(neato-graph-bar/draw-cpu-graph-helper cpu)
+	(insert "\n"))
+      (backward-delete-char 1))))
 
 (defun neato-graph-bar/draw-all-graphs ()
   (neato-graph-bar/draw-cpu-graph)
