@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t -*-
+
 ;; neato-graph-bar.el - Neat-o graph bars for Emacs
 ;; Copyright (C) 2016 Robert Cochran <robert-git@cochranmail.com>
 ;;
