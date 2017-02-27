@@ -177,7 +177,7 @@ alist.")
 	(if neato-graph-bar/current-window
 	    (neato-graph-bar/redraw))))))
 
-(defun neato-graph-bar/redraw (&rest x)
+(defun neato-graph-bar/redraw ()
   "Neato Graph Bar revert function."
   (if (zerop (window-width neato-graph-bar/current-window))
       (return-from neato-graph-bar/update))
