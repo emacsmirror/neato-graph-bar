@@ -1,6 +1,10 @@
-;; -*- lexical-binding: t -*-
+;;; neato-graph-bar.el --- Neat-o graph bars for Emacs -*- lexical-binding: t -*-
 
-;; neato-graph-bar.el - Neat-o graph bars for Emacs
+;; Author: Robert Cochran <robert-git@cochranmail.com.
+;; URL: https://gitlab.com/RobertCochran/neato-graph-bar
+;; Version: 1.0.0
+;; Package-Requires: ((cl-lib))
+
 ;; Copyright (C) 2016 Robert Cochran <robert-git@cochranmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
@@ -384,3 +388,5 @@ into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
   (insert "\n"))
 
 (provide 'neato-graph-bar)
+
+;;; neato-graph-bar.el ends here
