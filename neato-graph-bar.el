@@ -34,7 +34,7 @@ Currently expecting Linux meminfo format."
   "/proc/stat"
   "File to grab the CPU usage statistics from.
 
-Currently expecting Linux /proc/stat format"
+Currently expecting Linux /proc/stat format."
   :type '(file :must-match t)
   :group 'neato-graph-bar)
 
@@ -46,13 +46,13 @@ When non-nil, draw a single unified CPU graph."
 
 (defcustom neato-graph-bar/label-padding
   4
-  "Number of character to pad graph labels to"
+  "The number of character to pad graph labels to."
   :type 'wholenum
   :group 'neato-graph-bar)
 
 (defcustom neato-graph-bar/refresh-time
   1
-  "Number of seconds to wait before refreshing"
+  "The number of seconds to wait before refreshing."
   :type 'number
   :group 'neato-graph-bar)
 
@@ -191,18 +191,18 @@ alist.")
 (defun neato-graph-bar/draw-graph (label portions &optional end-text)
   "Draw a bar graph.
 
-LABEL is the label in front of the graph. PORTIONS is an alist
+LABEL is the label in front of the graph.  PORTIONS is an alist
 of font-percent value pairs, where percent is a float between 0
-and 1. Al unused space will automatically be marked as empty. For
+and 1. Al unused space will automatically be marked as empty.  For
 example, to specify that you want a graph drawn with face1 as the
 first 30%, and face2 the second 20%, with the rest empty, you
 would pass
 
-((face1 . 0.3)
+\((face1 . 0.3)
  (face2 . 0.2))
 
-for PORTIONS. END-TEXT is placed within the graph at the
-end. Unspecified, it defaults to a percentage, but can be any
+for PORTIONS.  END-TEXT is placed within the graph at the
+end.  Unspecified, it defaults to a percentage, but can be any
 arbitrary string (good for doing things such as providing a
 \"30MB/100MB\" type counter for storage graphs)."
   (let* ((padded-label (concat (make-string (- neato-graph-bar/label-padding
@@ -341,7 +341,7 @@ into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
     cpu-diff))
 
 (defun neato-graph-bar/draw-cpu-graph-helper (cpu)
-  "Helper to draw the CPU graph(s). Does the actual work."
+  "Helper to draw the CPU graph(s).  Does the actual work."
   (cl-flet ((stat-total () (cl-reduce #'+ (cdr cpu) :key #'cdr))
 	    (get-attribute (x) (cdr (assoc x (cdr cpu)))))
     (let* ((cpu-name (upcase (car cpu)))
@@ -375,6 +375,7 @@ into key-value pairs as defined by `neato-graph-bar/cpu-field-names'."
       (backward-delete-char 1))))
 
 (defun neato-graph-bar/draw-all-graphs ()
+  "Draw all available graphs."
   (neato-graph-bar/draw-cpu-graph)
   (insert "\n")
   (neato-graph-bar/draw-memory-graph)
