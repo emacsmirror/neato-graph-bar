@@ -181,7 +181,7 @@ alist.")
   (dolist (buffer (buffer-list))
     (with-current-buffer buffer
       (when (eq major-mode 'neato-graph-bar-mode)
-	(setq neato-graph-bar-current-window (get-buffer-window nil t))
+	(setq neato-graph-bar--current-window (get-buffer-window nil t))
 	(if neato-graph-bar--current-window
 	    (neato-graph-bar--redraw))))))
 
