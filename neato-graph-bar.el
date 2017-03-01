@@ -147,6 +147,7 @@ alist.")
   nil
   "Current window")
 
+;;;###autoload
 (defun neato-graph-bar ()
   "Displays system information graph bars."
   (interactive)
@@ -163,6 +164,7 @@ alist.")
 			 neato-graph-bar/refresh-time
 			 'neato-graph-bar/update)))))
 
+;;;###autoload
 (define-derived-mode neato-graph-bar-mode
   special-mode
   "Neato Graph Bar"
