@@ -1,6 +1,6 @@
 ;;; neato-graph-bar.el --- Neat-o graph bars for Emacs -*- lexical-binding: t -*-
 
-;; Author: Robert Cochran <robert-git@cochranmail.com.
+;; Author: Robert Cochran <robert-git@cochranmail.com>.
 ;; URL: https://gitlab.com/RobertCochran/neato-graph-bar
 ;; Version: 1.0.0
 ;; Package-Requires: ((emacs "24.3"))
