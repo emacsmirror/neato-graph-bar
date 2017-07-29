@@ -1,4 +1,4 @@
-;;; neato-graph-bar.el --- Neat-o graph bars for Emacs -*- lexical-binding: t -*-
+;;; neato-graph-bar.el --- Neat-o graph bars CPU/memory etc. -*- lexical-binding: t -*-
 
 ;; Author: Robert Cochran <robert-git@cochranmail.com>.
 ;; URL: https://gitlab.com/RobertCochran/neato-graph-bar
@@ -19,6 +19,11 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Provides htop-like graphs for CPU and memory consumption.  A good
+;; companion for proced.  Run `neato-graph-bar'.
 
 ;;; Code:
 
@@ -52,7 +57,7 @@ When non-nil, draw a single unified CPU graph."
 
 (defcustom neato-graph-bar-label-padding
   4
-  "The number of character to pad graph labels to."
+  "The number of characters to pad graph labels to."
   :type 'wholenum
   :group 'neato-graph-bar)
 
@@ -176,7 +181,8 @@ alist.")
   (add-hook 'kill-buffer-hook
 	    (lambda ()
 	      (if (timerp neato-graph-bar--update-timer)
-		  (cancel-timer neato-graph-bar--update-timer)))))
+		  (cancel-timer neato-graph-bar--update-timer)))
+            nil t))
 
 (defun neato-graph-bar-update ()
   "Update the graphs."
