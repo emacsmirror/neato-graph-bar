@@ -347,11 +347,11 @@ into key-value pairs as defined by `neato-graph-bar--cpu-field-names'."
     ;; Account for empty first run
     (unless neato-graph-bar--cpu-stats-previous
       (setq neato-graph-bar--cpu-stats-previous cpu-stat-list))
-    (cl-map 'list (lambda (n o)
-		    (cl-map 'list (lambda (x y)
-				    (rplacd x (- (cdr x) (cdr y))))
-			    (cdr n) (cdr o)))
-	    cpu-diff neato-graph-bar--cpu-stats-previous)
+    (cl-mapc (lambda (n o)
+	       (cl-mapc (lambda (x y)
+			  (rplacd x (- (cdr x) (cdr y))))
+		        (cdr n) (cdr o)))
+	     cpu-diff neato-graph-bar--cpu-stats-previous)
     (setq neato-graph-bar--cpu-stats-previous cpu-stat-list)
     cpu-diff))
 
