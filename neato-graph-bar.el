@@ -219,8 +219,9 @@ for PORTIONS.  END-TEXT is placed within the graph at the
 end.  Unspecified, it defaults to a percentage, but can be any
 arbitrary string (good for doing things such as providing a
 \"30MB/100MB\" type counter for storage graphs)."
-  (let* ((padded-label (concat (make-string (- neato-graph-bar-label-padding
-                                               (length label))
+  (let* ((padded-label (concat (make-string (max (- neato-graph-bar-label-padding
+                                                    (length label))
+                                                 0)
                                             ?\s)
                                label))
          (bar-width (- (window-body-width neato-graph-bar--current-window)
