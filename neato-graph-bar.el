@@ -348,11 +348,11 @@ into key-value pairs as defined by `neato-graph-bar--cpu-field-names'."
     ;; Account for empty first run
     (unless neato-graph-bar--cpu-stats-previous
       (setq neato-graph-bar--cpu-stats-previous cpu-stat-list))
-    (cl-mapc (lambda (n o)
-	       (cl-mapc (lambda (x y)
-			  (rplacd x (- (cdr x) (cdr y))))
-		        (cdr n) (cdr o)))
-	     cpu-diff neato-graph-bar--cpu-stats-previous)
+    (cl-loop for new-cpu in cpu-diff
+             for old-cpu in neato-graph-bar--cpu-stats-previous
+             do (cl-loop for new-stat in (cdr new-cpu)
+                         for old-stat in (cdr old-cpu)
+                         do (cl-decf (cdr new-stat) (cdr old-stat))))
     (setq neato-graph-bar--cpu-stats-previous cpu-stat-list)
     cpu-diff))
 
