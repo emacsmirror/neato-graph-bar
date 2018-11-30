@@ -396,7 +396,8 @@ into key-value pairs as defined by `neato-graph-bar--cpu-field-names'."
     (neato-graph-bar--queue-cpu-graph graph-queue)
     (neato-graph-bar--queue-memory-graph graph-queue)
     (neato-graph-bar--queue-swap-graph graph-queue)
-    (setf max-label (cl-reduce #'max (cl-first graph-queue) :key (lambda (x) (length (cl-first x)))))
+    (setf max-label (cl-reduce #'max (cl-first graph-queue)
+                               :key (lambda (x) (length (cl-first x)))))
     (let ((neato-graph-bar-label-padding max-label))
       (cl-loop for (label graph-info end-text) in (nreverse (cl-first graph-queue)) do
 	       (neato-graph-bar--draw-graph label graph-info end-text)
